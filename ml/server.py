@@ -10,7 +10,7 @@ import paho.mqtt.client as mqtt
 # -------------------------
 app = Flask(__name__)
 client = mqtt.Client()
-client.connect("broker.hivemq.com", 1883, 60)  # free public MQTT broker
+client.connect("broker.hivemq.com", 1883, 60)
 
 # -------------------------
 # Load Pretrained Model
@@ -36,16 +36,61 @@ with open("imagenet_classes.txt") as f:
     labels = [line.strip() for line in f.readlines()]
 
 # -------------------------
-# Keywords for animals (exclude humans)
+# LAND ANIMALS ONLY
 # -------------------------
 animal_keywords = [
-    "dog", "cat", "bird", "cow", "sheep", "horse", "elephant", "zebra",
-    "giraffe", "lion", "tiger", "bear", "monkey", "panda", "wolf", "fox",
-    "rabbit", "deer", "pig", "goat", "leopard", "cheetah", "camel", "kangaroo",
-    "insect", "spider", "snake", "fish", "whale", "dolphin", "otter", "seal",
-    "crab", "lobster", "butterfly", "bee", "ant", "mouse", "rat", "bat","snake"
+    # --- Cattle / Buffalo / Ox ---
+    "cow", "bull", "buffalo", "water buffalo",
+    "ox", "musk ox", "yak","cat",
+
+    # --- Sheep / Goat / Horned animals ---
+    "goat", "sheep", "ram", "bighorn",
+
+    # --- Horses / Camel family ---
+    "horse", "camel",
+
+    # --- Elephants ---
+    "elephant",
+
+    # --- Deer family & Antelope family ---
+    "deer", "antelope", "hartebeest", "gazelle", "impala",
+
+    # --- Dogs (ALL DOG BREEDS) ---
+    "dog", "terrier", "hound", "retriever", "shepherd",
+    "mastiff", "spaniel", "bulldog", "pug", "chihuahua",
+    "poodle", "husky", "doberman", "rottweiler",
+    "malamute", "collie",
+
+    # --- Monkeys ---
+    "monkey",
+
+    # --- Wild animals ---
+    "bear", "fox", "wolf", "jackal",
+    "leopard", "tiger", "lion",
+
+    # --- Others ---
+    "pig", "boar", "hog",
+    "rabbit",
+    "panda",
+    "mongoose",
+    "hyena"
 ]
 
+
+
+# ❌ SEA CREATURES (ignore)
+sea_animals = [
+    "fish", "shark", "whale", "dolphin", "seal", "otter",
+    "crab", "lobster", "shrimp", "jellyfish", "starfish"
+]
+
+# ❌ BIRDS (ignore)
+birds = [
+    "bird", "eagle", "pigeon", "crow", "sparrow", "parrot",
+    "owl", "duck", "hen", "rooster", "peacock"
+]
+
+# ❌ Humans
 human_keywords = ["person", "human", "man", "woman", "boy", "girl"]
 
 # -------------------------
@@ -62,14 +107,20 @@ def classify_image(image_path):
 
     class_name = labels[class_id].lower()
 
-    # detect animals only (exclude humans)
-    is_animal = any(word in class_name for word in animal_keywords)
+    # check categories
+    is_land_animal = any(word in class_name for word in animal_keywords)
+    is_bird = any(word in class_name for word in birds)
+    is_sea = any(word in class_name for word in sea_animals)
     is_human = any(word in class_name for word in human_keywords)
 
-    return is_animal and not is_human, class_name
+    # Final decision: only land animals allowed
+    if is_land_animal and not (is_bird or is_sea or is_human):
+        return True, class_name
+    else:
+        return False, class_name
 
 # -------------------------
-# Flask route
+# Flask Route
 # -------------------------
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -83,15 +134,15 @@ def upload_file():
     is_animal, class_name = classify_image(file_path)
 
     if is_animal:
-        print(f"🐾 Animal detected: {class_name}")
+        print(f"🐾 Land Animal Detected: {class_name}")
         client.publish("esp32/alert", "animal_detected")
         return jsonify({"result": "Animal", "class_name": class_name})
     else:
-        print("📦 Not an animal")
-        return jsonify({"result": "Not Animal"})
+        print("📦 Not a land animal")
+        return jsonify({"result": "Not Animal", "class_name": class_name})
 
 # -------------------------
-# Run server
+# Run Server
 # -------------------------
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

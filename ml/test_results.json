@@ -1,0 +1,79 @@
+[
+    [
+        "blurred_deer.jpg",
+        "images",
+        "Animal",
+        "impala",
+        200
+    ],
+    [
+        "car.jpg",
+        "images",
+        "Not Animal",
+        "sports car",
+        200
+    ],
+    [
+        "cat.jpg",
+        "images",
+        "Animal",
+        "egyptian cat",
+        200
+    ],
+    [
+        "deer.jpg",
+        "images",
+        "Animal",
+        "hartebeest",
+        200
+    ],
+    [
+        "deer2.webp",
+        "images",
+        "Animal",
+        "hartebeest",
+        200
+    ],
+    [
+        "dog.jpg",
+        "images",
+        "Animal",
+        "labrador retriever",
+        200
+    ],
+    [
+        "elephant.jpg",
+        "images",
+        "Animal",
+        "african elephant",
+        200
+    ],
+    [
+        "human.jpg",
+        "images",
+        "Not Animal",
+        "revolver",
+        200
+    ],
+    [
+        "ox.jpg",
+        "images",
+        "Animal",
+        "ox",
+        200
+    ],
+    [
+        "snake.jpeg",
+        "images",
+        "Not Animal",
+        "green mamba",
+        200
+    ],
+    [
+        "tree.jpg",
+        "images",
+        "Not Animal",
+        "rapeseed",
+        200
+    ]
+]
